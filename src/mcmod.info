@@ -1,0 +1,22 @@
+[
+{
+  "modid": "aPerf",
+  "name": "aPerf",
+  "description": "Performance tools collection",
+  "version": "1.0.0",
+  "mcversion": "1.4.5",
+  "url": "-",
+  "updateUrl": "",
+  "authors": [
+    "AlphAest"
+  ],
+  "credits": "Copyright (c) 2012,2013 AlphAest",
+  "logoFile": "",
+  "screenshots": [
+  ],
+  "parent":"",
+  "requiredMods": [
+    "Forge, PermissionsEx"
+  ]
+}
+]
