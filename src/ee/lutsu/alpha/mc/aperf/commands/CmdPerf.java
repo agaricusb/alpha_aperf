@@ -21,9 +21,9 @@ public class CmdPerf extends CommandBase
     }
 	
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender par1ICommandSender)
+	public boolean canCommandSenderUseCommand(ICommandSender cs)
 	{
-		return true;
+		return Permissions.canAccess(cs, "aperf.cmd");
 	}
 	
 	@Override

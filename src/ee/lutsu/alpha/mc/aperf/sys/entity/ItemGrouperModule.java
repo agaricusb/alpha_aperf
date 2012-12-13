@@ -18,6 +18,7 @@ import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.src.AxisAlignedBB;
 import net.minecraft.src.Chunk;
+import net.minecraft.src.Entity;
 import net.minecraft.src.EntityItem;
 import net.minecraft.src.EntityLiving;
 import net.minecraft.src.EntityXPOrb;
@@ -101,7 +102,7 @@ public class ItemGrouperModule extends ModuleBase
 		aPerf.instance.config.save();
 	}
 	
-	public boolean groupExpOrb(EntityXPOrb item, World world)
+	public boolean groupExpOrb(EntityXPOrb item, World world, ArrayList<Entity> toAdd, ArrayList<Entity> toRemove)
 	{
 		if (!this.enabled)
 			return false;
@@ -110,45 +111,69 @@ public class ItemGrouperModule extends ModuleBase
 			return false;
 
 		List entities = world.getEntitiesWithinAABB(EntityXPOrb.class, item.boundingBox.expand(matchRange, matchRange, matchRange));
+		if (entities.size() < 2)
+			return false; // only self
+		
+		List<EntityXPOrb> close = new ArrayList<EntityXPOrb>();
 		for(Object o : entities)
 		{
 			EntityXPOrb e = (EntityXPOrb)o;
-			if (e.isDead || e == item)
+			if (e.isDead || e.xpOrbAge < livedAtleast)
 				continue;
 			
-			if (e.xpOrbAge < livedAtleast)
-				continue;
-			
-			try
-			{
-				Field xpField = EntityXPOrb.class.getDeclaredField("xpValue");
-				xpField.setAccessible(true);
-				
-				xpField.set(item, item.getXpValue() + e.getXpValue());
-			}
-			catch(Exception er)
-			{
-				throw new RuntimeException(er);
-			}
-			
-			item.xpOrbAge = Math.min(item.xpOrbAge, e.xpOrbAge);
-			e.setDead();
-
-			if (moveToNewLocation)
-			{
-				item.setPosition(item.posX + (e.posX - item.posX) / 2, 
-						item.posY + (e.posY - item.posY) / 2, 
-						item.posZ + (e.posZ - item.posZ) / 2);
-				item.velocityChanged = true;
-			}
-			
-			return true;
+			close.add(e);
 		}
 		
-		return false;
+		if (close.size() < 2)
+			return false; // none valid, contains self
+		
+		double x = 0, y = 0, z = 0;
+		int val = 0, cval = 0, age = Integer.MAX_VALUE;
+		
+		for (EntityXPOrb orb : close)
+		{
+			cval = orb.getXpValue();
+			if (val >= Integer.MAX_VALUE - cval) // don't group at all if we run over max integer
+				return false;
+			
+			val += cval;
+			age = Math.min(orb.xpOrbAge, age);
+			
+			if (moveToNewLocation)
+			{
+				x += orb.posX;
+				y += orb.posY;
+				z += orb.posZ;
+			}
+		}
+
+		if (!moveToNewLocation)
+		{
+			x = item.posX;
+			y = item.posY;
+			z = item.posZ;
+		}
+		else
+		{
+			x /= close.size();
+			y /= close.size();
+			z /= close.size();
+		}
+		
+		EntityXPOrb nOrb = new EntityXPOrb(world, x, y, z, val);
+		nOrb.xpOrbAge = age;
+		
+		toAdd.add(nOrb);
+		for (EntityXPOrb orb : close) // remove all old ones
+		{
+			orb.setDead();
+			toRemove.add(orb);
+		}
+		
+		return true;
 	}
 	
-	public boolean groupItem(EntityItem item, World world)
+	public boolean groupItem(EntityItem item, World world, ArrayList<Entity> toAdd, ArrayList<Entity> toRemove)
 	{
 		if (!this.enabled)
 			return false;
@@ -160,13 +185,14 @@ public class ItemGrouperModule extends ModuleBase
 		for(Object o : entities)
 		{
 			EntityItem e = (EntityItem)o;
-			if (e.isDead || e == item)
+			if (e.isDead || e == item || e.age < livedAtleast)
 				continue;
 			
-			if (e.age < livedAtleast || !item.func_70289_a(e))
-				continue;
+			if (!item.func_70289_a(e))
+				continue; // can't put together
 			
 			EntityItem ret = item.isDead ? e : item;
+			toRemove.add(item.isDead ? item : e);
 
 			if (moveToNewLocation)
 			{

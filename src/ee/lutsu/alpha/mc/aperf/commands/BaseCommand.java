@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 
+import ee.lutsu.alpha.mc.aperf.Log;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.src.Entity;
 import net.minecraft.src.ICommandSender;
@@ -25,7 +27,10 @@ public abstract class BaseCommand
 
 	protected void msg(ICommandSender sender, String msg)
 	{
-		sender.sendChatToPlayer(msg);
+		if (sender == MinecraftServer.getServer())
+			Log.direct(msg); // supports colors
+		else
+			sender.sendChatToPlayer(msg);
 	}
 
 	protected void msg(ICommandSender sender, String format, Object ... args)

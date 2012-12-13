@@ -1,10 +1,12 @@
 package ee.lutsu.alpha.mc.aperf.sys.entity;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.src.Entity;
 import net.minecraft.src.EntityItem;
 import net.minecraft.src.EntityLiving;
 import net.minecraft.src.EntityPlayer;
@@ -41,18 +43,26 @@ public class ItemGrouperEvents implements ITickHandler
 		}
 		
 		World w = (World)tickData[0];
+		ArrayList<Entity> toRemove = new ArrayList<Entity>();
+		ArrayList<Entity> toAdd = new ArrayList<Entity>();
 		
 		for (Object o : w.loadedEntityList)
 		{
 			if (parent.groupItems && o instanceof EntityItem)
 			{
-				parent.groupItem((EntityItem)o, w);
+				parent.groupItem((EntityItem)o, w, toAdd, toRemove);
 			}
 			else if (parent.groupExpOrbs && o instanceof EntityXPOrb)
 			{
-				parent.groupExpOrb((EntityXPOrb)o, w);
+				parent.groupExpOrb((EntityXPOrb)o, w, toAdd, toRemove);
 			}
 		}
+		
+		for (Entity e : toRemove)
+			EntityHelper.removeEntity(e);
+		for (Entity e : toAdd)
+			w.spawnEntityInWorld(e);
+		
 		ticks = MinecraftServer.getServer().worldServers.length * parent.skipForTicks;
 	}
 
@@ -67,16 +77,4 @@ public class ItemGrouperEvents implements ITickHandler
 	{
 		return "aPerf ItemGrouper Module event handler";
 	}
-	
-	/*
-	 * Wont work because items can move together themselves
-	@ForgeSubscribe
-	public void entityJoinWorld(EntityJoinWorldEvent ev)
-	{
-		if (!(ev.entity instanceof EntityItem))
-			return;
-		
-		if (parent.groupItem((EntityItem)ev.entity, ev.world))
-			ev.setCanceled(true);
-	}*/
 }

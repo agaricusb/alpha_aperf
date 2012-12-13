@@ -1,25 +1,31 @@
 package ee.lutsu.alpha.mc.aperf;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 import net.minecraft.src.EntityPlayer;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
+import net.minecraft.src.ICommandSender;
+import ru.tehkode.permissions.IPermissions;
 
 public class Permissions
 {
 	private static int pexOn = 0;
+	private static IPermissions pex = null;
 	
 	private static boolean pexAvailable()
 	{
 		if (pexOn == 0)
 		{
-			try
+			for (ModContainer cont : Loader.instance().getModList())
 			{
-				PermissionsEx.class.getName();
-				pexOn = 1;
+				if (cont.getModId().equalsIgnoreCase("PermissionsEx"))
+				{
+					if (cont.getMod() instanceof IPermissions)
+						pex = (IPermissions)cont.getMod();
+					
+					break;
+				}
 			}
-			catch(Throwable ex)
-			{
-				pexOn = 2;
-			}
+			pexOn = pex == null ? 2 : 1;
 		}
 		
 		return pexOn == 1;
@@ -35,6 +41,33 @@ public class Permissions
 		if (!pexAvailable())
 			throw new RuntimeException("PEX not found");
 		
-		return PermissionsEx.instance.has(name, node, world);
+		return pex.has(name, node, world);
+	}
+	
+	public static boolean canAccess(ICommandSender name, String node)
+	{
+		if (!(name instanceof EntityPlayer))
+			return true;
+		else
+		{
+			EntityPlayer pl = (EntityPlayer)name;
+			return canAccess(pl.username, String.valueOf(pl.dimension), node);
+		}
+	}
+	
+	public static String getPrefix(String player, String world)
+	{
+		if (!pexAvailable())
+			return "";
+
+		return pex.prefix(player, world);
+	}
+	
+	public static String getPostfix(String player, String world)
+	{
+		if (!pexAvailable())
+			return "";
+
+		return pex.suffix(player, world);
 	}
 }

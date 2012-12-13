@@ -33,12 +33,23 @@ public class Log
 	
 	public static void log(Level l, String msg)
 	{
-		mclog.log(l, consoleColors(String.format("§7[§a%s§7]%s", aPerf.MOD_NAME, msg)));
+		log(l, msg, null);
 	}
 	
 	public static void log(Level l, String msg, Throwable t)
 	{
-		mclog.log(l, consoleColors(String.format("§7[§a%s§7]%s", aPerf.MOD_NAME, msg)), t);
+		ChatColor color = l == Level.INFO ? ChatColor.GRAY : l == Level.WARNING ? ChatColor.YELLOW : l == Level.SEVERE ? ChatColor.RED : ChatColor.DARK_GRAY;
+		String f = consoleColors(String.format("§7[§a%s§7]%s%s", aPerf.MOD_NAME, color, msg));
+		
+		if (t == null)
+			mclog.log(l, f);
+		else
+			mclog.log(l, f, t);
+	}
+	
+	public static void direct(String msg)
+	{
+		mclog.log(Level.INFO, consoleColors(msg));
 	}
 	
 	public static String consoleColors(String str)

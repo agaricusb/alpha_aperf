@@ -17,6 +17,8 @@ import net.minecraft.src.IAnimals;
 import net.minecraft.src.IMob;
 import net.minecraft.src.INpc;
 import net.minecraft.src.IProjectile;
+import net.minecraft.src.ItemStack;
+import net.minecraft.src.World;
 
 public class EntityHelper 
 {
