@@ -8,20 +8,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.Entity;
-import net.minecraft.src.EntityAnimal;
-import net.minecraft.src.EntityFireball;
-import net.minecraft.src.EntityItem;
-import net.minecraft.src.EntityMob;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.EntityTNTPrimed;
-import net.minecraft.src.IAnimals;
-import net.minecraft.src.ICommandSender;
-import net.minecraft.src.IMob;
-import net.minecraft.src.INpc;
-import net.minecraft.src.IProjectile;
-import net.minecraft.src.WorldServer;
+import net.minecraft.world.WorldServer;
 
 import org.bukkit.ChatColor;
 

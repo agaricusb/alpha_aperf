@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import com.google.common.base.Optional;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.Entity;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.World;
+import net.minecraft.world.World;
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
 
 public class EntityModule extends ModuleBase

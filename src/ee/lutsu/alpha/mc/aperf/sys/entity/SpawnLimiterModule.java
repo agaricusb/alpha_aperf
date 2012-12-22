@@ -13,15 +13,16 @@ import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitFilterType;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitRange;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitType;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.Block;
-import net.minecraft.src.Chunk;
-import net.minecraft.src.Entity;
-import net.minecraft.src.EntityLiving;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IChunkProvider;
-import net.minecraft.src.World;
-import net.minecraft.src.WorldServer;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.common.ConfigCategory;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
@@ -55,9 +56,9 @@ public class SpawnLimiterModule extends ModuleBase
 	
 	public void saveConfig()
 	{
-		Map<String, Property> props = aPerf.instance.config.categories.get("Entity-SpawnLimiter");
+		ConfigCategory props = aPerf.instance.config.categories.get("Entity-SpawnLimiter");
 		if (props == null)
-			aPerf.instance.config.categories.put("Entity-SpawnLimiter", props = new HashMap<String, Property>());
+			aPerf.instance.config.categories.put("Entity-SpawnLimiter", props = new ConfigCategory("Entity-SpawnLimiter"));
 
 		props.clear();
 		

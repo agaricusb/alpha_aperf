@@ -14,10 +14,9 @@ import org.bukkit.ChatColor;
 
 import ee.lutsu.alpha.mc.aperf.Log;
 
+import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.Entity;
-import net.minecraft.src.ICommandSender;
-import net.minecraft.src.WorldServer;
+import net.minecraft.world.WorldServer;
 
 public abstract class BaseCommand 
 {

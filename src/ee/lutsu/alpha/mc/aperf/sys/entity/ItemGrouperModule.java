@@ -7,26 +7,19 @@ import java.util.List;
 import java.util.Map;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 import ee.lutsu.alpha.mc.aperf.aPerf;
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitRange;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitType;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.AxisAlignedBB;
-import net.minecraft.src.Chunk;
-import net.minecraft.src.Entity;
-import net.minecraft.src.EntityItem;
-import net.minecraft.src.EntityLiving;
-import net.minecraft.src.EntityXPOrb;
-import net.minecraft.src.IChunkProvider;
-import net.minecraft.src.Item;
-import net.minecraft.src.MathHelper;
-import net.minecraft.src.World;
-import net.minecraft.src.WorldServer;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
 
@@ -178,7 +171,7 @@ public class ItemGrouperModule extends ModuleBase
 		if (!this.enabled)
 			return false;
 		
-		if (item.item == null || !item.item.isStackable() || item.isDead || item.age < livedAtleast)
+		if (item.func_92014_d() == null || !item.func_92014_d().isStackable() || item.isDead || item.age < livedAtleast)
 			return false;
 
 		List entities = world.getEntitiesWithinAABB(EntityItem.class, item.boundingBox.expand(matchRange, matchRange, matchRange));
@@ -188,7 +181,7 @@ public class ItemGrouperModule extends ModuleBase
 			if (e.isDead || e == item || e.age < livedAtleast)
 				continue;
 			
-			if (!item.func_70289_a(e))
+			if (!item.combineItems(e))
 				continue; // can't put together
 			
 			EntityItem ret = item.isDead ? e : item;

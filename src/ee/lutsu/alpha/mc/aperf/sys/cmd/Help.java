@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.ICommandSender;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
+
 import ee.lutsu.alpha.mc.aperf.ChatColor;
 import ee.lutsu.alpha.mc.aperf.Permissions;
 import ee.lutsu.alpha.mc.aperf.aPerf;

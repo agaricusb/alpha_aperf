@@ -1,9 +1,9 @@
 package ee.lutsu.alpha.mc.aperf;
 
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.ICommandSender;
 import ru.tehkode.permissions.IPermissions;
 
 public class Permissions

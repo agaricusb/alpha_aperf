@@ -2,7 +2,8 @@ package ee.lutsu.alpha.mc.aperf.sys.cmd;
 
 import java.util.Map;
 
-import net.minecraft.src.ICommandSender;
+import net.minecraft.command.ICommandSender;
+
 import ee.lutsu.alpha.mc.aperf.commands.BaseCommand;
 import ee.lutsu.alpha.mc.aperf.commands.Command;
 

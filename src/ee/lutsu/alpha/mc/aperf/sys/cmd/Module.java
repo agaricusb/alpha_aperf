@@ -2,9 +2,10 @@ package ee.lutsu.alpha.mc.aperf.sys.cmd;
 
 import java.util.Map;
 
+import net.minecraft.command.ICommandSender;
+
 import org.bukkit.ChatColor;
 
-import net.minecraft.src.ICommandSender;
 import ee.lutsu.alpha.mc.aperf.aPerf;
 import ee.lutsu.alpha.mc.aperf.commands.BaseCommand;
 import ee.lutsu.alpha.mc.aperf.commands.Command;

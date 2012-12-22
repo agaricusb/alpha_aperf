@@ -25,10 +25,8 @@ import ee.lutsu.alpha.mc.aperf.sys.entity.EntityModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.ItemGrouperModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
 
+import net.minecraft.command.ServerCommandManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.CommandBase;
-import net.minecraft.src.ICommandSender;
-import net.minecraft.src.ServerCommandManager;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
