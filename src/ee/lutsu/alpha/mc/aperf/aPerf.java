@@ -34,7 +34,6 @@ import net.minecraftforge.common.Property;
 @Mod(
         modid = "aPerf",
         name = "aPerf",
-        dependencies = "required-after:Forge@[6.0,);required-after:PermissionsEx@[1.0,)",
         version = "1.0.0"
 )
 @NetworkMod(
