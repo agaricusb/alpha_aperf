@@ -2,6 +2,7 @@ package ee.lutsu.alpha.mc.aperf.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public abstract class BaseCommand
 		}   
 	}  
 	
-	public static <T> Set<Entry<String, Integer>> getGroupedCounts(List list, IGrouper<T> grouper)
+	public static <T> List<Entry<String, Integer>> getGroupedCounts(List list, IGrouper<T> grouper)
 	{
 		HashMap<String, Integer> grouped = new HashMap<String, Integer>();
 		
@@ -65,16 +66,17 @@ public abstract class BaseCommand
 			grouped.put(group, prev == null ? 1 : prev + 1);
 		}
 		
-		TreeSet<Entry<String, Integer>> sorted = new TreeSet<Entry<String, Integer>>(new Comparator<Entry<String, Integer>>()
+		ArrayList<Entry<String, Integer>> sorted = new ArrayList<Entry<String, Integer>>(grouped.entrySet());
+		
+		Collections.sort(sorted, new Comparator<Entry<String, Integer>>()
 		{
 			@Override
-			public int compare(Entry<String, Integer> a, Entry<String, Integer> b)
+			public int compare(Entry<String, Integer> arg0, Entry<String, Integer> arg1)
 			{
-				return b.getValue().compareTo(a.getValue());
+				return Integer.compare(arg1.getValue(), arg0.getValue());
 			}
 		});
-		
-		sorted.addAll(grouped.entrySet());
+
 		return sorted;
 	}
 	
@@ -88,7 +90,7 @@ public abstract class BaseCommand
 		public List list(T obj);
 	}
 	
-	protected void sendCountedList(ICommandSender sender, String prefix, Set<Entry<String, Integer>> counts, Integer from, Integer cnt)
+	protected void sendCountedList(ICommandSender sender, String prefix, List<Entry<String, Integer>> counts, Integer from, Integer cnt)
 	{
 		String maxCntLen = null;
 		int i = -1;
@@ -130,7 +132,7 @@ public abstract class BaseCommand
 			msg(sender, "%s%s [%d], %s entities", ChatColor.GREEN, serv.provider.getDimensionName(),
 					serv.provider.dimensionId, l.size());
 			
-			Set<Entry<String, Integer>> counts = getGroupedCounts(l, grouper);
+			List<Entry<String, Integer>> counts = getGroupedCounts(l, grouper);
 			
 			sendCountedList(sender, "   ", counts, start, count);
 		}
