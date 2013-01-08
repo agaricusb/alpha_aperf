@@ -24,6 +24,7 @@ import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
 import ee.lutsu.alpha.mc.aperf.sys.entity.EntityModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.ItemGrouperModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
+import ee.lutsu.alpha.mc.aperf.sys.tile.TileEntityModule;
 
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.server.MinecraftServer;
@@ -50,6 +51,7 @@ public class aPerf
 	{
 		GeneralModule.instance,
 		EntityModule.instance,
+		TileEntityModule.instance,
 		SpawnLimiterModule.instance,
 		ItemGrouperModule.instance
 	};

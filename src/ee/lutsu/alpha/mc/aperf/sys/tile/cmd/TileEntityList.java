@@ -1,49 +1,42 @@
-package ee.lutsu.alpha.mc.aperf.sys.entity.cmd;
+package ee.lutsu.alpha.mc.aperf.sys.tile.cmd;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldServer;
-
-import org.bukkit.ChatColor;
 
 import com.google.common.base.Optional;
 
 import ee.lutsu.alpha.mc.aperf.commands.BaseCommand;
 import ee.lutsu.alpha.mc.aperf.commands.Command;
 import ee.lutsu.alpha.mc.aperf.commands.CommandException;
-import ee.lutsu.alpha.mc.aperf.sys.entity.EntityHelper;
+import ee.lutsu.alpha.mc.aperf.sys.tile.TileEntityHelper;
 
-public class EntityList extends BaseCommand
+public class TileEntityList extends BaseCommand
 {
 	@Command(
 		name = "aperf",
-		syntax = "(?:entity|e)",
-		description = "Lists the entity types and counts",
+		syntax = "(?:tile|t)",
+		description = "Lists the tile types and counts",
 		isPrimary = true,
-		permission = "aperf.cmd.entity.list"
+		permission = "aperf.cmd.tile.list"
 	)
 	public void entry(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
 	{
 		list(plugin, sender, null);
 	}
-
+	
 	@Command(
 		name = "aperf",
-		syntax = "(?:entity|e) (?:listhere|lh) [group] [filter] [limit]",
-		description = "Lists the entities at your chunk\n" +
+		syntax = "(?:tile|t) (?:listhere|lh) [group] [filter] [limit]",
+		description = "Lists the tiles at your chunk\n" +
 			"Group: group/name/class/lclass/pos\n" +
 			"Filter: group:s,name:s,class:s,lclass:s",
-		permission = "aperf.cmd.entity.listhere",
+		permission = "aperf.cmd.tile.listhere",
 		isPlayerOnly = true
 	)
 	public void listhere(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
@@ -68,11 +61,11 @@ public class EntityList extends BaseCommand
 	
 	@Command(
 		name = "aperf",
-		syntax = "(?:entity|e) (?:list|l) [group] [filter] [limit]",
-		description = "Lists the entities\n" +
+		syntax = "(?:tile|t) (?:list|l) [group] [filter] [limit]",
+		description = "Lists the tiles\n" +
 			"Group: group/name/class/lclass/where/pos\n" +
 			"Filter: group:s,name:s,class:s,lclass:s,dimension:n,where:n.n[-n.n]",
-		permission = "aperf.cmd.entity.list"
+		permission = "aperf.cmd.tile.list"
 	)
 	public void list(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
 	{
@@ -168,44 +161,44 @@ public class EntityList extends BaseCommand
 		final Optional<Integer> iW3 = Optional.fromNullable(w3);
 		final Optional<Integer> iW4 = Optional.fromNullable(w4);
 		
-		sendWorldGroupedList("Entity list grouped by " + sGrp + (sFilter != null ? ", filtered by " + sFilter : "")
+		sendWorldGroupedList("Tile list grouped by " + sGrp + (sFilter != null ? ", filtered by " + sFilter : "")
 				+ (limitCnt != null ? ", limited by " + args.get("limit").trim() : ""), sender, 
 			new IListForObject<WorldServer>()
 			{
 				@Override
 				public List list(WorldServer obj)
 				{
-					return obj.loadedEntityList;
+					return obj.loadedTileEntityList;
 				}
 			},
-			new IGrouper<Entity>()
+			new IGrouper<TileEntity>()
 			{
 				@Override
-				public String group(Entity ent)
+				public String group(TileEntity ent)
 				{
 					// filter
-					if ((iGroupFilter.isPresent() && !iGroupFilter.get().equalsIgnoreCase(EntityHelper.getEntityType(ent))) ||
+					if ((iGroupFilter.isPresent() && !iGroupFilter.get().equalsIgnoreCase(TileEntityHelper.getEntityType(ent))) ||
 							(iClassFilter.isPresent() && !iClassFilter.get().equalsIgnoreCase(ent.getClass().getSimpleName())) ||
 							(iLongClassFilter.isPresent() && !iLongClassFilter.get().equalsIgnoreCase(ent.getClass().getName())) ||
-							(iNameFilter.isPresent() && !iNameFilter.get().equalsIgnoreCase(EntityHelper.getEntityName(ent).replaceAll(" ", "_"))) ||
-							(iDim.isPresent() && iDim.get() != ent.dimension) ||
-							(iW1.isPresent() && !iW3.isPresent() && (iW1.get() != ent.chunkCoordX || iW2.get() != ent.chunkCoordZ)) ||
-							(iW1.isPresent() && iW3.isPresent() && (iW1.get() > ent.chunkCoordX || iW2.get() > ent.chunkCoordZ || iW3.get() < ent.chunkCoordX || iW4.get() < ent.chunkCoordZ)))
+							(iNameFilter.isPresent() && !iNameFilter.get().equalsIgnoreCase(TileEntityHelper.getEntityName(ent).replaceAll(" ", "_"))) ||
+							(iDim.isPresent() && iDim.get() != ent.worldObj.provider.dimensionId) ||
+							(iW1.isPresent() && !iW3.isPresent() && (iW1.get() != (ent.xCoord >> 4) || iW2.get() != (ent.zCoord >> 4))) ||
+							(iW1.isPresent() && iW3.isPresent() && (iW1.get() > (ent.xCoord >> 4) || iW2.get() > (ent.zCoord >> 4) || iW3.get() < (ent.xCoord >> 4) || iW4.get() < (ent.zCoord >> 4))))
 							return null;
 					
 					// group
 					if (iGrp == 1)
-						return EntityHelper.getEntityName(ent);
+						return TileEntityHelper.getEntityName(ent);
 					else if (iGrp == 2)
 						return ent.getClass().getSimpleName();
 					else if (iGrp == 3)
 						return ent.getClass().getName();
 					else if (iGrp == 4)
-						return String.format("%d:%d [%d:%d]", ent.chunkCoordX, ent.chunkCoordZ, (ent.chunkCoordX << 4) + 8, (ent.chunkCoordZ << 4) + 8);
+						return String.format("%d:%d [%d:%d]", (ent.xCoord >> 4), (ent.zCoord >> 4), ((ent.xCoord >> 4) << 4) + 8, ((ent.zCoord >> 4) << 4) + 8);
 					else if (iGrp == 5)
-						return String.format("%s @ %d,%d,%d", EntityHelper.getEntityName(ent), (int)ent.posX, (int)ent.posY, (int)ent.posZ);
+						return String.format("%s @ %d,%d,%d", TileEntityHelper.getEntityName(ent), (int)ent.xCoord, (int)ent.yCoord, (int)ent.zCoord);
 					else
-						return EntityHelper.getEntityType(ent);
+						return TileEntityHelper.getEntityType(ent);
 				}
 			}, limitStart, limitCnt);
 	}
