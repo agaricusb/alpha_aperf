@@ -107,13 +107,16 @@ public class Status extends BaseCommand
 						ticket.getType(), ticket.getModId(), ticket.getPlayerName(), ticket.getEntity(), Joiner.on("|").join(vals), 
 						ticket.getChunkList().size(), ticket.getChunkListDepth());
 				
+				ArrayList<String> coords = new ArrayList<String>();
 				for (Object pos : ticket.getChunkList())
 				{
 					ChunkCoordIntPair p = (ChunkCoordIntPair)pos;
-					
+					coords.add(String.format("(%s,%s)", p.chunkXPos, p.chunkZPos));
+					/*
 					msg(sender, "%s    %s,%s [%s,%s]", ChatColor.YELLOW, 
-							p.chunkXPos, p.chunkZPos, p.getCenterXPos(), p.getCenterZPosition());
+							p.chunkXPos, p.chunkZPos, p.getCenterXPos(), p.getCenterZPosition());*/
 				}
+				msg(sender, "%s    %s", ChatColor.YELLOW, Joiner.on(", ").join(coords));
 			}
 		}
 		

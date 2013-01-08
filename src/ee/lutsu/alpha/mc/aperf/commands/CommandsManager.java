@@ -108,12 +108,7 @@ public class CommandsManager
 		}
 		catch (Throwable e) 
 		{
-			Log.severe("There is bogus command handler for " + command.getCommandName() + " command. (Is appropriate plugin is update?)");
-			if (e.getCause() != null) {
-				e.getCause().printStackTrace();
-			} else {
-				e.printStackTrace();
-			}
+			Log.severe("There is bogus command handler for " + command.getCommandName() + " command.", e);
 			sender.sendChatToPlayer(ChatColor.RED + "Command exception: " + (e.getMessage() == null ? "unknown" : e.getMessage()));
 		}
 
