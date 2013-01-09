@@ -41,12 +41,31 @@ public class EntityList extends BaseCommand
 		name = "aperf",
 		syntax = "(?:entity|e) (?:listhere|lh) [group] [filter] [limit]",
 		description = "Lists the entities at your chunk\n" +
-			"Group: group/name/class/lclass/pos\n" +
-			"Filter: group:s,name:s,class:s,lclass:s",
+			"Group: group/name/class/lclass/where/pos\n" +
+			"Filter: group:s,name:s,class:s,lclass:s,hash:s",
 		permission = "aperf.cmd.entity.listhere",
 		isPlayerOnly = true
 	)
 	public void listhere(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
+	{
+		if (args == null)
+			args = new HashMap<String, String>();
+		
+		args.put("radius", "0");
+
+		listnearhere(plugin, sender, args);
+	}
+	
+	@Command(
+			name = "aperf",
+			syntax = "(?:entity|e) (?:listnearhere|lnh) <radius> [group] [filter] [limit]",
+			description = "Lists the entities near your chunk\n" +
+				"Group: group/name/class/lclass/where/pos\n" +
+				"Filter: group:s,name:s,class:s,lclass:s,hash:s",
+			permission = "aperf.cmd.tile.listnearhere",
+			isPlayerOnly = true
+	)
+	public void listnearhere(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
 	{
 		EntityPlayer p = (EntityPlayer)sender;
 		
@@ -55,13 +74,10 @@ public class EntityList extends BaseCommand
 		
 		String filter = args.get("filter");
 		filter = filter != null && filter.length() > 0 ? filter + ";" : "";
+		int radius = Integer.parseInt(args.get("radius"));
 		
-		filter = filter + String.format("d:%d,w:%d.%d", p.dimension, p.chunkCoordX, p.chunkCoordZ);
+		filter = filter + String.format("d:%d,w:%d.%d/%d.%d", p.dimension, p.chunkCoordX - radius, p.chunkCoordZ - radius, p.chunkCoordX + radius, p.chunkCoordZ + radius);
 		args.put("filter", filter);
-		
-		String group = args.get("group");
-		if (group != null && group.toLowerCase().startsWith("w"))
-			args.remove("group");
 		
 		list(plugin, sender, args);
 	}
@@ -71,12 +87,12 @@ public class EntityList extends BaseCommand
 		syntax = "(?:entity|e) (?:list|l) [group] [filter] [limit]",
 		description = "Lists the entities\n" +
 			"Group: group/name/class/lclass/where/pos\n" +
-			"Filter: group:s,name:s,class:s,lclass:s,dimension:n,where:n.n[-n.n]",
+			"Filter: group:s,name:s,class:s,lclass:s,dimension:n,where:n.n[/n.n],hash:s",
 		permission = "aperf.cmd.entity.list"
 	)
 	public void list(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
 	{
-		String fName = null, fGroup = null, fClass = null, fLClass = null;
+		String fName = null, fGroup = null, fClass = null, fLClass = null, fHash = null;
 		Integer dim = null, w1 = null, w2 = null, w3 = null, w4 = null, limitCnt = null, limitStart = null;
 		int grp = 0;
 		
@@ -99,7 +115,7 @@ public class EntityList extends BaseCommand
 				throw new CommandException("Unknown grouping");
 		}
 		
-		String sGrp = grp == 0 ? "Group type" : grp == 1 ? "Name" : grp == 2 ? "Class name" : grp == 3 ? "Long Class name" : grp == 4 ? "Where (location)" : "-";
+		String sGrp = grp == 0 ? "Group type" : grp == 1 ? "Name" : grp == 2 ? "Class name" : grp == 3 ? "Long Class name" : grp == 4 ? "Where (location)" : grp == 5 ? "Position" : "-";
 		String sFilter = null;
 		
 		if (args != null && args.get("filter") != null && args.get("filter").length() > 0)
@@ -126,7 +142,7 @@ public class EntityList extends BaseCommand
 					fGroup = splits[1];
 				else if (splits[0].toLowerCase().startsWith("w"))
 				{
-					String[] parts = splits[1].split("-");
+					String[] parts = splits[1].split("/");
 					String[] p1 = parts[0].split("\\.");
 					w1 = Integer.valueOf(p1[0]);
 					w2 = Integer.valueOf(p1[1]);
@@ -137,6 +153,8 @@ public class EntityList extends BaseCommand
 						w4 = Integer.valueOf(p2[1]);
 					}
 				}
+				else if (splits[0].toLowerCase().startsWith("h"))
+					fHash = splits[1];
 				else
 					throw new Exception("Unknown filter");
 			}
@@ -167,6 +185,7 @@ public class EntityList extends BaseCommand
 		final Optional<Integer> iW2 = Optional.fromNullable(w2);
 		final Optional<Integer> iW3 = Optional.fromNullable(w3);
 		final Optional<Integer> iW4 = Optional.fromNullable(w4);
+		final Optional<String> iHashFilter = Optional.fromNullable(fHash);
 		
 		sendWorldGroupedList("Entity list grouped by " + sGrp + (sFilter != null ? ", filtered by " + sFilter : "")
 				+ (limitCnt != null ? ", limited by " + args.get("limit").trim() : ""), sender, 
@@ -190,7 +209,8 @@ public class EntityList extends BaseCommand
 							(iNameFilter.isPresent() && !iNameFilter.get().equalsIgnoreCase(EntityHelper.getEntityName(ent).replaceAll(" ", "_"))) ||
 							(iDim.isPresent() && iDim.get() != ent.dimension) ||
 							(iW1.isPresent() && !iW3.isPresent() && (iW1.get() != ent.chunkCoordX || iW2.get() != ent.chunkCoordZ)) ||
-							(iW1.isPresent() && iW3.isPresent() && (iW1.get() > ent.chunkCoordX || iW2.get() > ent.chunkCoordZ || iW3.get() < ent.chunkCoordX || iW4.get() < ent.chunkCoordZ)))
+							(iW1.isPresent() && iW3.isPresent() && (iW1.get() > ent.chunkCoordX || iW2.get() > ent.chunkCoordZ || iW3.get() < ent.chunkCoordX || iW4.get() < ent.chunkCoordZ)) ||
+							(iHashFilter.isPresent() && !iHashFilter.get().equalsIgnoreCase(Integer.toHexString(System.identityHashCode(ent)))))
 							return null;
 					
 					// group
@@ -203,7 +223,7 @@ public class EntityList extends BaseCommand
 					else if (iGrp == 4)
 						return String.format("%d:%d [%d:%d]", ent.chunkCoordX, ent.chunkCoordZ, (ent.chunkCoordX << 4) + 8, (ent.chunkCoordZ << 4) + 8);
 					else if (iGrp == 5)
-						return String.format("%s @ %d,%d,%d", EntityHelper.getEntityName(ent), (int)ent.posX, (int)ent.posY, (int)ent.posZ);
+						return String.format("%s/%s @ %d,%d,%d", EntityHelper.getEntityName(ent), Integer.toHexString(System.identityHashCode(ent)), (int)ent.posX, (int)ent.posY, (int)ent.posZ);
 					else
 						return EntityHelper.getEntityType(ent);
 				}

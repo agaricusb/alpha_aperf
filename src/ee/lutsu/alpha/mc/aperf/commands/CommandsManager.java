@@ -102,14 +102,18 @@ public class CommandsManager
 		{
 			selectedBinding.call(this.plugin, sender, selectedBinding.getParams());
 		}
-		catch (CommandException e)
-		{
-			sender.sendChatToPlayer(ChatColor.RED + "Command error: " + e.getMessage());
-		}
 		catch (Throwable e) 
 		{
-			Log.severe("There is bogus command handler for " + command.getCommandName() + " command.", e);
-			sender.sendChatToPlayer(ChatColor.RED + "Command exception: " + (e.getMessage() == null ? "unknown" : e.getMessage()));
+			if (e instanceof java.lang.reflect.InvocationTargetException)
+				e = ((java.lang.reflect.InvocationTargetException)e).getCause();
+			
+			if (e instanceof CommandException)
+				sender.sendChatToPlayer(ChatColor.RED + "Command error: " + e.getMessage());
+			else
+			{
+				Log.severe("There is bogus command handler for " + command.getCommandName() + " command.", e);
+				sender.sendChatToPlayer(ChatColor.RED + "Command exception: " + e.getClass().getSimpleName() + " " + (e.getMessage() == null ? "" : e.getMessage()));
+			}
 		}
 
 		return true;

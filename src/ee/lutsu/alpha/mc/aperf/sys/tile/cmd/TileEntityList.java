@@ -34,8 +34,8 @@ public class TileEntityList extends BaseCommand
 		name = "aperf",
 		syntax = "(?:tile|t) (?:listhere|lh) [group] [filter] [limit]",
 		description = "Lists the tiles at your chunk\n" +
-			"Group: group/name/class/lclass/pos\n" +
-			"Filter: group:s,name:s,class:s,lclass:s",
+			"Group: group/name/class/lclass/where/pos\n" +
+			"Filter: group:s,name:s,class:s,lclass:s,hash:s",
 		permission = "aperf.cmd.tile.listhere",
 		isPlayerOnly = true
 	)
@@ -46,15 +46,33 @@ public class TileEntityList extends BaseCommand
 		if (args == null)
 			args = new HashMap<String, String>();
 		
+		args.put("radius", "0");
+
+		listnearhere(plugin, sender, args);
+	}
+	
+	@Command(
+			name = "aperf",
+			syntax = "(?:tile|t) (?:listnearhere|lnh) <radius> [group] [filter] [limit]",
+			description = "Lists the tiles near your chunk\n" +
+				"Group: group/name/class/lclass/where/pos\n" +
+				"Filter: group:s,name:s,class:s,lclass:s,hash:s",
+			permission = "aperf.cmd.tile.listnearhere",
+			isPlayerOnly = true
+	)
+	public void listnearhere(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
+	{
+		EntityPlayer p = (EntityPlayer)sender;
+		
+		if (args == null)
+			args = new HashMap<String, String>();
+		
 		String filter = args.get("filter");
 		filter = filter != null && filter.length() > 0 ? filter + ";" : "";
+		int radius = Integer.parseInt(args.get("radius"));
 		
-		filter = filter + String.format("d:%d,w:%d.%d", p.dimension, p.chunkCoordX, p.chunkCoordZ);
+		filter = filter + String.format("d:%d,w:%d.%d/%d.%d", p.dimension, p.chunkCoordX - radius, p.chunkCoordZ - radius, p.chunkCoordX + radius, p.chunkCoordZ + radius);
 		args.put("filter", filter);
-		
-		String group = args.get("group");
-		if (group != null && group.toLowerCase().startsWith("w"))
-			args.remove("group");
 		
 		list(plugin, sender, args);
 	}
@@ -64,12 +82,12 @@ public class TileEntityList extends BaseCommand
 		syntax = "(?:tile|t) (?:list|l) [group] [filter] [limit]",
 		description = "Lists the tiles\n" +
 			"Group: group/name/class/lclass/where/pos\n" +
-			"Filter: group:s,name:s,class:s,lclass:s,dimension:n,where:n.n[-n.n]",
+			"Filter: group:s,name:s,class:s,lclass:s,dimension:n,where:n.n[/n.n],hash:s",
 		permission = "aperf.cmd.tile.list"
 	)
 	public void list(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
 	{
-		String fName = null, fGroup = null, fClass = null, fLClass = null;
+		String fName = null, fGroup = null, fClass = null, fLClass = null, fHash = null;
 		Integer dim = null, w1 = null, w2 = null, w3 = null, w4 = null, limitCnt = null, limitStart = null;
 		int grp = 0;
 		
@@ -92,7 +110,7 @@ public class TileEntityList extends BaseCommand
 				throw new CommandException("Unknown grouping");
 		}
 		
-		String sGrp = grp == 0 ? "Group type" : grp == 1 ? "Name" : grp == 2 ? "Class name" : grp == 3 ? "Long Class name" : grp == 4 ? "Where (location)" : "-";
+		String sGrp = grp == 0 ? "Group type" : grp == 1 ? "Name" : grp == 2 ? "Class name" : grp == 3 ? "Long Class name" : grp == 4 ? "Where (location)" : grp == 5 ? "Position" : "-";
 		String sFilter = null;
 		
 		if (args != null && args.get("filter") != null && args.get("filter").length() > 0)
@@ -119,7 +137,7 @@ public class TileEntityList extends BaseCommand
 					fGroup = splits[1];
 				else if (splits[0].toLowerCase().startsWith("w"))
 				{
-					String[] parts = splits[1].split("-");
+					String[] parts = splits[1].split("/");
 					String[] p1 = parts[0].split("\\.");
 					w1 = Integer.valueOf(p1[0]);
 					w2 = Integer.valueOf(p1[1]);
@@ -130,6 +148,8 @@ public class TileEntityList extends BaseCommand
 						w4 = Integer.valueOf(p2[1]);
 					}
 				}
+				else if (splits[0].toLowerCase().startsWith("h"))
+					fHash = splits[1];
 				else
 					throw new Exception("Unknown filter");
 			}
@@ -160,6 +180,7 @@ public class TileEntityList extends BaseCommand
 		final Optional<Integer> iW2 = Optional.fromNullable(w2);
 		final Optional<Integer> iW3 = Optional.fromNullable(w3);
 		final Optional<Integer> iW4 = Optional.fromNullable(w4);
+		final Optional<String> iHashFilter = Optional.fromNullable(fHash);
 		
 		sendWorldGroupedList("Tile list grouped by " + sGrp + (sFilter != null ? ", filtered by " + sFilter : "")
 				+ (limitCnt != null ? ", limited by " + args.get("limit").trim() : ""), sender, 
@@ -183,7 +204,8 @@ public class TileEntityList extends BaseCommand
 							(iNameFilter.isPresent() && !iNameFilter.get().equalsIgnoreCase(TileEntityHelper.getEntityName(ent).replaceAll(" ", "_"))) ||
 							(iDim.isPresent() && iDim.get() != ent.worldObj.provider.dimensionId) ||
 							(iW1.isPresent() && !iW3.isPresent() && (iW1.get() != (ent.xCoord >> 4) || iW2.get() != (ent.zCoord >> 4))) ||
-							(iW1.isPresent() && iW3.isPresent() && (iW1.get() > (ent.xCoord >> 4) || iW2.get() > (ent.zCoord >> 4) || iW3.get() < (ent.xCoord >> 4) || iW4.get() < (ent.zCoord >> 4))))
+							(iW1.isPresent() && iW3.isPresent() && (iW1.get() > (ent.xCoord >> 4) || iW2.get() > (ent.zCoord >> 4) || iW3.get() < (ent.xCoord >> 4) || iW4.get() < (ent.zCoord >> 4))) ||
+							(iHashFilter.isPresent() && !iHashFilter.get().equalsIgnoreCase(Integer.toHexString(System.identityHashCode(ent)))))
 							return null;
 					
 					// group
@@ -196,7 +218,7 @@ public class TileEntityList extends BaseCommand
 					else if (iGrp == 4)
 						return String.format("%d:%d [%d:%d]", (ent.xCoord >> 4), (ent.zCoord >> 4), ((ent.xCoord >> 4) << 4) + 8, ((ent.zCoord >> 4) << 4) + 8);
 					else if (iGrp == 5)
-						return String.format("%s @ %d,%d,%d", TileEntityHelper.getEntityName(ent), (int)ent.xCoord, (int)ent.yCoord, (int)ent.zCoord);
+						return String.format("%s/%s @ %d,%d,%d", TileEntityHelper.getEntityName(ent), Integer.toHexString(System.identityHashCode(ent)), (int)ent.xCoord, (int)ent.yCoord, (int)ent.zCoord);
 					else
 						return TileEntityHelper.getEntityType(ent);
 				}

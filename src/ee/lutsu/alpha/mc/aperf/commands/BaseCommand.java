@@ -129,10 +129,13 @@ public abstract class BaseCommand
 			if (l.size() < 1)
 				continue;
 			
-			msg(sender, "%s%s [%d], %s entities", ChatColor.GREEN, serv.provider.getDimensionName(),
-					serv.provider.dimensionId, l.size());
-			
+			int cnt = 0;
 			List<Entry<String, Integer>> counts = getGroupedCounts(l, grouper);
+			for (Entry<String, Integer> e : counts)
+				cnt += e.getValue();
+
+			msg(sender, "%s%s [%d], %s %s", ChatColor.GREEN, serv.provider.getDimensionName(),
+					serv.provider.dimensionId, cnt, cnt == 1 ? "entity" : "entities");
 			
 			sendCountedList(sender, "   ", counts, start, count);
 		}
