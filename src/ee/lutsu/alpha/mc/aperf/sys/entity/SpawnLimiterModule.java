@@ -246,20 +246,25 @@ public class SpawnLimiterModule extends ModuleBase
 					
 					if (chunk != null && chunk.entityLists != null)
 					{
-						for(List subChunk : chunk.entityLists)
+						synchronized (chunk.entityLists)
 						{
-							// mc? bug - chunk loaded entities aren't added to the world
-							ArrayList<Entity> toRemove = new ArrayList<Entity>();
-							for(Object o : subChunk)
+							for (List subChunk : chunk.entityLists)
 							{
-								if (!server.loadedEntityList.contains(o))
-									toRemove.add((Entity)o);
+								synchronized (subChunk)
+								{
+									// mc? bug - chunk loaded entities aren't added to the world
+									ArrayList<Entity> toRemove = new ArrayList<Entity>();
+									for(Object o : subChunk)
+									{
+										if (!server.loadedEntityList.contains(o))
+											toRemove.add((Entity)o);
+									}
+									
+									for (Entity e : toRemove)
+										chunk.removeEntity(e);
+								}
+								current += countEntitys(limit, subChunk); // inner
 							}
-							
-							for (Entity e : toRemove)
-								chunk.removeEntity(e);
-							
-							current += countEntitys(limit, subChunk); // inner
 						}
 					}
 				}
@@ -272,30 +277,33 @@ public class SpawnLimiterModule extends ModuleBase
 	protected int countEntitys(SpawnLimiterLimit limit, List entityList)
 	{ 
 		int cnt = 0;
-		for (Object o : entityList)
+		synchronized (entityList)
 		{
-			Entity e = (Entity)o;
-			String name = null;
-			
-			if (!(e instanceof EntityLiving) || e instanceof EntityPlayer)
-				continue;
-			
-			if (limit.type == LimitType.All)
-				name = null;
-			else if (limit.type == LimitType.Class)
-				name = e.getClass().getSimpleName();
-			else if (limit.type == LimitType.LClass)
-				name = e.getClass().getName();
-			else if (limit.type == LimitType.Name)
-				name = EntityHelper.getEntityName(e);
-			else if (limit.type == LimitType.Group)
-				name = EntityHelper.getEntityType(e);
-			
-			if (name != null && !limit.limitName.equalsIgnoreCase(name))
-				continue;
-			
-			//Log.info("Hit count ++ on " + e.getClass().getSimpleName());
-			cnt++;
+			for (Object o : entityList)
+			{
+				Entity e = (Entity)o;
+				String name = null;
+				
+				if (!(e instanceof EntityLiving) || e instanceof EntityPlayer)
+					continue;
+				
+				if (limit.type == LimitType.All)
+					name = null;
+				else if (limit.type == LimitType.Class)
+					name = e.getClass().getSimpleName();
+				else if (limit.type == LimitType.LClass)
+					name = e.getClass().getName();
+				else if (limit.type == LimitType.Name)
+					name = EntityHelper.getEntityName(e);
+				else if (limit.type == LimitType.Group)
+					name = EntityHelper.getEntityType(e);
+				
+				if (name != null && !limit.limitName.equalsIgnoreCase(name))
+					continue;
+				
+				//Log.info("Hit count ++ on " + e.getClass().getSimpleName());
+				cnt++;
+			}
 		}
 		
 		return cnt;

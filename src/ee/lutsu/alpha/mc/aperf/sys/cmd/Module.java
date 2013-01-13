@@ -105,6 +105,8 @@ public class Module extends BaseCommand
 			msg(sender, "Module not found", ChatColor.RED);
 		else
 		{
+			aPerf.instance.loadConfig();
+			
 			module.disable();
 			module.enable();
 			

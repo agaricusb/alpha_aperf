@@ -24,6 +24,7 @@ import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
 import ee.lutsu.alpha.mc.aperf.sys.entity.EntityModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.ItemGrouperModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
+import ee.lutsu.alpha.mc.aperf.sys.packet.PacketManagerModule;
 import ee.lutsu.alpha.mc.aperf.sys.tile.TileEntityModule;
 
 import net.minecraft.command.ServerCommandManager;
@@ -53,7 +54,8 @@ public class aPerf
 		EntityModule.instance,
 		TileEntityModule.instance,
 		SpawnLimiterModule.instance,
-		ItemGrouperModule.instance
+		ItemGrouperModule.instance,
+		PacketManagerModule.Instance
 	};
 	
     @Mod.Instance("aPerf")
@@ -63,13 +65,12 @@ public class aPerf
     public void preInit(FMLPreInitializationEvent ev)
     {
         configFile = ev.getSuggestedConfigurationFile();
-        
-        reload();
     }
 
     @Mod.Init
     public void load(FMLInitializationEvent var1)
     {
+    	reload();
     }
 
     @Mod.ServerStarted
