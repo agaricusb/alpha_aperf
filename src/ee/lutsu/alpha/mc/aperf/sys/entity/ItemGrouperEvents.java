@@ -43,19 +43,17 @@ public class ItemGrouperEvents implements ITickHandler
 		World w = (World)tickData[0];
 		ArrayList<Entity> toRemove = new ArrayList<Entity>();
 		ArrayList<Entity> toAdd = new ArrayList<Entity>();
-		
-		synchronized (w.loadedEntityList)
+
+		for (int i = 0; i < w.loadedEntityList.size(); i++)
 		{
-			for (Object o : w.loadedEntityList)
+			Object o = w.loadedEntityList.get(i);
+			if (parent.groupItems && o instanceof EntityItem)
 			{
-				if (parent.groupItems && o instanceof EntityItem)
-				{
-					parent.groupItem((EntityItem)o, w, toAdd, toRemove);
-				}
-				else if (parent.groupExpOrbs && o instanceof EntityXPOrb)
-				{
-					parent.groupExpOrb((EntityXPOrb)o, w, toAdd, toRemove);
-				}
+				parent.groupItem((EntityItem)o, w, toAdd, toRemove);
+			}
+			else if (parent.groupExpOrbs && o instanceof EntityXPOrb)
+			{
+				parent.groupExpOrb((EntityXPOrb)o, w, toAdd, toRemove);
 			}
 		}
 		
