@@ -171,7 +171,7 @@ public class ItemGrouperModule extends ModuleBase
 		if (!this.enabled)
 			return false;
 		
-		if (item.func_92014_d() == null || !item.func_92014_d().isStackable() || item.isDead || item.age < livedAtleast)
+		if (item.getEntityItem() == null || !item.getEntityItem().isStackable() || item.isDead || item.age < livedAtleast)
 			return false;
 
 		List entities = world.getEntitiesWithinAABB(EntityItem.class, item.boundingBox.expand(matchRange, matchRange, matchRange));
