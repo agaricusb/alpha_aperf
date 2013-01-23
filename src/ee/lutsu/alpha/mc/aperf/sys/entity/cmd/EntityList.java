@@ -62,7 +62,7 @@ public class EntityList extends BaseCommand
 			description = "Lists the entities near your chunk\n" +
 				"Group: group/name/class/lclass/where/pos\n" +
 				"Filter: group:s,name:s,class:s,lclass:s,hash:s",
-			permission = "aperf.cmd.tile.listnearhere",
+			permission = "aperf.cmd.entity.listnearhere",
 			isPlayerOnly = true
 	)
 	public void listnearhere(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
