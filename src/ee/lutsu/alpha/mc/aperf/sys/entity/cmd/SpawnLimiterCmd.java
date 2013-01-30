@@ -25,6 +25,9 @@ public class SpawnLimiterCmd extends BaseCommand
 	{
 		String format = "%s%s | %s%-6s%s | %-8s | %-20s | %s";
 		
+		if (!SpawnLimiterModule.instance.isEnabled())
+			msg(sender, "%s%s is currently disabled. Use /ap m for more info", ChatColor.LIGHT_PURPLE, SpawnLimiterModule.instance.getName());
+		
 		msg(sender, format, ChatColor.DARK_GREEN, "#", "", "Active", "", "Type", "Filter", "Options");
 		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
 		

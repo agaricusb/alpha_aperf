@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ee.lutsu.alpha.mc.aperf.Deobfuscator;
 import ee.lutsu.alpha.mc.aperf.Log;
 import ee.lutsu.alpha.mc.aperf.aPerf;
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
@@ -128,7 +129,7 @@ public class SpawnLimiterModule extends ModuleBase
 			{
 				fullyLoadedChunks.clear();
 				
-				Field f = ChunkProviderServer.class.getDeclaredField("loadedChunks");
+				Field f = ChunkProviderServer.class.getDeclaredField(Deobfuscator.getFieldName(ChunkProviderServer.class, "loadedChunks"));
 				f.setAccessible(true); // private List loadedChunks = new ArrayList();
 				
 				// Server is null at server startup
