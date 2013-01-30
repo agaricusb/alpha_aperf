@@ -12,8 +12,6 @@ import cpw.mods.fml.relauncher.Side;
 
 import ee.lutsu.alpha.mc.aperf.aPerf;
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitRange;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitType;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -68,9 +66,9 @@ public class ItemGrouperModule extends ModuleBase
 		}
 	}
 	
-	protected void loadConfig()
+	@Override
+	public void loadConfig()
 	{
-
 		groupItems = Boolean.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "GroupItems", Boolean.toString(groupItems)).value);
 		groupExpOrbs = Boolean.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "GroupExpOrbs", Boolean.toString(groupExpOrbs)).value);
 		

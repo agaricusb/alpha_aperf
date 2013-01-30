@@ -13,6 +13,7 @@ import ee.lutsu.alpha.mc.aperf.aPerf;
 import ee.lutsu.alpha.mc.aperf.commands.BaseCommand;
 import ee.lutsu.alpha.mc.aperf.commands.Command;
 import ee.lutsu.alpha.mc.aperf.commands.CommandsManager.CommandBinding;
+import ee.lutsu.alpha.mc.aperf.sys.objects.SubFilter;
 
 public class Help extends BaseCommand
 {
@@ -83,5 +84,30 @@ public class Help extends BaseCommand
 		}
 		
 		return ret;
+	}
+	
+	@Command(
+		name = "aperf",
+		syntax = "(?:filterhelp|fh)",
+		description = "Filter syntax manual",
+		permission = "aperf.cmd.help.filterhelp"
+	)
+	public void filterHelp(Object plugin, ICommandSender sender, Map<String, String> args) 
+	{
+		msg(sender, "%s--------- %sFilter%s --------------", ChatColor.GRAY, ChatColor.GOLD, ChatColor.GRAY);
+		msg(sender, "%sA entity/tileentity filter is a way to specify which entitys should be \"hit\" for a specific action.", ChatColor.GREEN);
+		msg(sender, "%sFor a safe list it means which entities should never be messed with, for a remove comamnd it means which should be removed, for a spawn limit it means for which entities the limit is applied to and which entities are being counted (if a count limit).", ChatColor.GREEN);
+		msg(sender, "%sThe filter is a comma-seperated list of sub-filters. To get a \"hit\" from a filter all the sub-filters have to be hit.", ChatColor.GREEN);
+		msg(sender, "%sThe sub-filter consist of a key (type) and a value. Specifying the same key'd subfilter twice is in most cases pointless as it contradicts itself. In the future there could be regex based searches where it could be useful to define the same key multiple times.", ChatColor.GREEN);
+		msg(sender, "%sCurrently defined sub-filter types and their possible values:", ChatColor.GREEN);
+		
+		for (SubFilter.Type filter : SubFilter.Type.values())
+		{
+			msg(sender, "%s[%s]", ChatColor.RED, filter.toString());
+			msg(sender, "%s   Desc: %s", ChatColor.GOLD, filter.description);
+			msg(sender, "%s   Values: %s", ChatColor.GOLD, filter.valueDesc);
+		}
+		
+		msg(sender, "%s----------------------------------", ChatColor.GRAY);
 	}
 }

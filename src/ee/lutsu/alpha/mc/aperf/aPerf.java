@@ -22,6 +22,7 @@ import ee.lutsu.alpha.mc.aperf.commands.CommandsManager;
 import ee.lutsu.alpha.mc.aperf.sys.GeneralModule;
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
 import ee.lutsu.alpha.mc.aperf.sys.entity.EntityModule;
+import ee.lutsu.alpha.mc.aperf.sys.entity.EntitySafeListModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.ItemGrouperModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
 import ee.lutsu.alpha.mc.aperf.sys.packet.PacketManagerModule;
@@ -36,7 +37,7 @@ import net.minecraftforge.common.Property;
 @Mod(
         modid = "aPerf",
         name = "aPerf",
-        version = "1.4.7.0"
+        version = "1.4.7.1"
 )
 @NetworkMod(
         clientSideRequired = false,
@@ -52,6 +53,7 @@ public class aPerf
 	{
 		GeneralModule.instance,
 		EntityModule.instance,
+		EntitySafeListModule.instance,
 		TileEntityModule.instance,
 		SpawnLimiterModule.instance,
 		ItemGrouperModule.instance,
@@ -88,11 +90,14 @@ public class aPerf
     
     public void loadConfig()
     {
-    	config = new Configuration(configFile);
+    	config = new Configuration(configFile, true);
 
         try
         {
             config.load();
+            
+	    	for (ModuleBase m : modules)
+	    		m.loadConfig();
         }
         catch (Exception var8)
         {
@@ -107,13 +112,13 @@ public class aPerf
     
     public boolean isEnabled(ModuleBase module)
     {
-    	Property prop = config.get("Modules", "Enable-" + module.getClass().getSimpleName(), "false");
-    	return prop.getBoolean(false);
+    	Property prop = config.get("Modules", "Enable-" + module.getClass().getSimpleName(), module.getDefaultEnabled());
+    	return prop.getBoolean(module.getDefaultEnabled());
     }
     
     public void setAutoLoad(ModuleBase module, boolean load)
     {
-    	Property prop = config.get("Modules", "Enable-" + module.getClass().getSimpleName(), "false");
+    	Property prop = config.get("Modules", "Enable-" + module.getClass().getSimpleName(), false);
     	prop.value = String.valueOf(load);
     	config.save();
     }
@@ -124,7 +129,7 @@ public class aPerf
     	{
 	    	for (ModuleBase m : modules)
 	    	{
-	            if (isEnabled(m))
+	            if (m.isVisible() && isEnabled(m))
 	            	m.enable();
 	    	}
     	}
@@ -152,7 +157,7 @@ public class aPerf
     		disableModules();
     		enableModules();
     	}
-    	catch(Exception ex)
+    	catch (Exception ex)
     	{
     		Log.severe("Load failed");
     		throw new RuntimeException(ex.getMessage(), ex);

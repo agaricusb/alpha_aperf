@@ -22,7 +22,7 @@ import ee.lutsu.alpha.mc.aperf.Log;
 import ee.lutsu.alpha.mc.aperf.aPerf;
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterEvents;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit;
+import ee.lutsu.alpha.mc.aperf.sys.objects.SpawnLimit;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.IPacketHandler;
@@ -617,7 +617,8 @@ public class PacketManagerModule extends ModuleBase implements IPacketHandler
 		return null;
 	}
 
-	protected void loadConfig()
+	@Override
+	public void loadConfig()
 	{
 		ConfigCategory cat = aPerf.instance.config.getCategory("Packet-Limiter.DefaultLimit");
 

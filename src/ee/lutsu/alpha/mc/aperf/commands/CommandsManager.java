@@ -90,9 +90,9 @@ public class CommandsManager
 		if (sender instanceof EntityPlayer) // this method are not public and required permission
 		{ 
 			if (!selectedBinding.checkPermissions((EntityPlayer) sender)) {
-				Log.warning("User §4" + ((EntityPlayer) sender).username + " §7tried to access chat command \"" 
+				Log.warning("User §4" + ((EntityPlayer) sender).username + " §etried to access chat command \"" 
 						+ command.getCommandName() + " " + arguments
-						+ "\", but §4doesn't have permission §7to do this.");
+						+ "\", but §4doesn't have permission §eto do this.");
 				sender.sendChatToPlayer(ChatColor.RED + "Sorry, you don't have enough permissions.");
 				return true;
 			}

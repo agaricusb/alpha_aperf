@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class Log 
 {
 	private static final Pattern color_pattern = Pattern.compile("(?i)§([0-9A-FK-OR])");
-	public static Logger mclog = Logger.getLogger("Minecraft");
+	public static Logger mclog = Logger.getLogger("aPerf");
 	public static boolean isUnix = isUnix();
 
 	public static void info(String msg)
@@ -39,7 +39,7 @@ public class Log
 	public static void log(Level l, String msg, Throwable t)
 	{
 		ChatColor color = l == Level.INFO ? ChatColor.GRAY : l == Level.WARNING ? ChatColor.YELLOW : l == Level.SEVERE ? ChatColor.RED : ChatColor.DARK_GRAY;
-		String f = consoleColors(String.format("§7[§a%s§7]%s%s", aPerf.MOD_NAME, color, msg));
+		String f = consoleColors(String.format("%s%s", color, msg)); // §7[§a%s§7], aPerf.MOD_NAME
 		
 		if (t == null)
 			mclog.log(l, f);

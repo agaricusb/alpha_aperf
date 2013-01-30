@@ -1,6 +1,7 @@
 package ee.lutsu.alpha.mc.aperf.sys.entity.cmd;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.minecraft.command.ICommandSender;
 
@@ -8,11 +9,9 @@ import org.bukkit.ChatColor;
 
 import ee.lutsu.alpha.mc.aperf.commands.BaseCommand;
 import ee.lutsu.alpha.mc.aperf.commands.Command;
+import ee.lutsu.alpha.mc.aperf.commands.CommandException;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitFilterType;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitRange;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitType;
+import ee.lutsu.alpha.mc.aperf.sys.objects.SpawnLimit;
 
 public class SpawnLimiterCmd extends BaseCommand
 {
@@ -24,24 +23,21 @@ public class SpawnLimiterCmd extends BaseCommand
 	)
 	public void list(Object plugin, ICommandSender sender, Map<String, String> args) 
 	{
-		String format = "%s%s | %s%-6s%s | %-6s | %-3s | %3s | %-4s | %6s | %s";
+		String format = "%s%s | %s%-6s%s | %-8s | %-20s | %s";
 		
-		msg(sender, format, ChatColor.DARK_GREEN, "#", "", "Active", "", "Range", "Ext", "Dim", "Type", "Filter", "Limit");
+		msg(sender, format, ChatColor.DARK_GREEN, "#", "", "Active", "", "Type", "Filter", "Options");
 		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
 		
 		int i = 1;
-		for (SpawnLimiterLimit limit : SpawnLimiterModule.instance.limits)
+		for (SpawnLimit limit : SpawnLimiterModule.instance.limits)
 		{
 			msg(sender, format, ChatColor.GREEN,
 				i++,
-				limit.active ? ChatColor.DARK_GREEN : ChatColor.RED,
-				limit.active ? "on" : "off", ChatColor.GREEN,
-				limit.range.name(),
-				limit.rangeExt,
-				limit.allDims ? "all" : limit.dimension,
+				limit.on ? ChatColor.DARK_GREEN : ChatColor.RED,
+				limit.on ? "on" : "off", ChatColor.GREEN,
 				limit.type.name(),
-				limit.limitName,
-				limit.filterStr());
+				limit.filter.serializeDisplay(),
+				limit.getDisplayOptions());
 		}
 		
 		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
@@ -49,41 +45,29 @@ public class SpawnLimiterCmd extends BaseCommand
 	
 	@Command(
 		name = "aperf",
-		syntax = "(?:entity|e) (?:spawn|s) (?:add|a) <range> <ext> <dim> <type> <filter> <limit> [active]",
+		syntax = "(?:entity|e) (?:spawn|s) (?:add|a) <type> <filter> [options] [active]",
 		description = "Add a new spawn limit\n" +
-				"Range: Server|Map|Chunk, Ext: chunk radius, Dim: dimension/all\n" +
-				"Type: All|Group|Class|LClass|Name\n" +
-				"Filter: Filter appropriate for the type, Active: on|off\n" +
-				"Limit: Count-n/ClearAbove-n[:n]/WaterAbove-n[:n]/BlockBelow-n[:n]",
+				"Type: '/ap e s types' for more info\n" +
+				"Filter: '/ap filterhelp' for more info\n" +
+				"Options: Limit type specific options. '/ap e s types' for more info\n" +
+				"Active: on|off\n",
 		permission = "aperf.cmd.entity.spawn.add"
 	)
-	public void add(Object plugin, ICommandSender sender, Map<String, String> args) 
+	public void add(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
 	{
-		String active = args.get("active");
-		SpawnLimiterLimit limit = new SpawnLimiterLimit();
+		SpawnLimit limit = null;
 		
-		limit.range = LimitRange.get(args.get("range"));
-		limit.rangeExt = Integer.valueOf(args.get("ext"));
-		limit.allDims = args.get("dim").equalsIgnoreCase("all");
-		limit.dimension = limit.allDims ? 0 : Integer.valueOf(args.get("dim"));
-		limit.type = LimitType.get(args.get("type"));
-		limit.limitName = args.get("filter");
-		limit.active = active == null ? true : active.equalsIgnoreCase("active") || active.equalsIgnoreCase("yes") || active.equalsIgnoreCase("on") || active.equalsIgnoreCase("1");
-		
-		String[] sp = args.get("limit").split("-");
-		limit.filterType = LimitFilterType.get(sp[0]);
-		
-		if (limit.filterType == LimitFilterType.BlockBelow || limit.filterType == LimitFilterType.ClearAbove || limit.filterType == LimitFilterType.WaterAbove)
+		try
 		{
-			String[] sp2 = sp[1].split(":");
-			limit.limitInt = Integer.parseInt(sp2[0]);
-			
-			if (sp2.length > 1)
-				limit.limitInt2 = Integer.parseInt(sp2[1]);
+			limit = SpawnLimit.fromUserInput(
+				args.get("type"), 
+				args.get("filter"), 
+				args.get("options"), 
+				args.get("active"));
 		}
-		else
+		catch (Exception e)
 		{
-			limit.limitInt = Integer.parseInt(sp[1]);
+			throw new CommandException(e.toString(), e);
 		}
 		
 		SpawnLimiterModule.instance.limits.add(limit);
@@ -104,7 +88,7 @@ public class SpawnLimiterCmd extends BaseCommand
 	{
 		int index = Integer.parseInt(args.get("index")) - 1;
 
-		SpawnLimiterLimit limit = SpawnLimiterModule.instance.limits.remove(index);
+		SpawnLimit limit = SpawnLimiterModule.instance.limits.remove(index);
 		SpawnLimiterModule.instance.saveConfig();
 		
 		if (limit != null)
@@ -125,18 +109,73 @@ public class SpawnLimiterCmd extends BaseCommand
 	{
 		int index = Integer.parseInt(args.get("index")) - 1;
 
-		SpawnLimiterLimit limit = SpawnLimiterModule.instance.limits.get(index);
+		SpawnLimit limit = SpawnLimiterModule.instance.limits.get(index);
 		if (limit == null)
 		{
 			msg(sender, "%sLimit not found", ChatColor.YELLOW);
 			return;
 		}
 		
-		limit.active = !limit.active;
+		limit.on = !limit.on;
 		
 		SpawnLimiterModule.instance.saveConfig();
 		msg(sender, "%sLimit toggled", ChatColor.GREEN);
 
 		list(plugin, sender, null);
+	}
+	
+	
+	@Command(
+		name = "aperf",
+		syntax = "(?:entity|e) (?:spawn|s) (?:set|s) <index> <key> [value]",
+		description = "Sets the option for the limit",
+		permission = "aperf.cmd.entity.spawn.set"
+	)
+	public void setOption(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
+	{
+		int index = Integer.parseInt(args.get("index")) - 1;
+
+		SpawnLimit limit = SpawnLimiterModule.instance.limits.get(index);
+		if (limit == null)
+		{
+			msg(sender, "%sLimit not found", ChatColor.YELLOW);
+			return;
+		}
+
+		limit.updateOption(args.get("key"), args.get("value"));
+		
+		SpawnLimiterModule.instance.saveConfig();
+		msg(sender, "%sLimit option set", ChatColor.GREEN);
+
+		list(plugin, sender, null);
+	}
+	
+	@Command(
+		name = "aperf",
+		syntax = "(?:entity|e) (?:spawn|s) types",
+		description = "Displays the limiter types",
+		permission = "aperf.cmd.entity.spawn.types"
+	)
+	public void types(Object plugin, ICommandSender sender, Map<String, String> args) throws InstantiationException, IllegalAccessException 
+	{
+		msg(sender, "%s---------------- %sTypes%s -------------------------", ChatColor.GRAY, ChatColor.GOLD, ChatColor.GRAY);
+		for (SpawnLimit.Type t : SpawnLimit.Type.values())
+		{
+			msg(sender, "%s%s", ChatColor.DARK_PURPLE, t.name());
+			msg(sender, "%s%s", ChatColor.GRAY, t.description);
+			
+			Map<String, String> targs = t.handler.newInstance().getDefinedArguments();
+			
+			for (Entry<String, String> kv : targs.entrySet())
+			{
+				boolean optional = kv.getKey().endsWith("?");
+				String key = optional ? kv.getKey().substring(0, kv.getKey().length() - 1) : kv.getKey();
+				
+				msg(sender, "%s   %s%s - %s", 
+						optional ? ChatColor.YELLOW : ChatColor.GOLD, key, ChatColor.GRAY, 
+						kv.getValue() + (optional ? "(optional)" : ""));
+			}
+		}
+		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
 	}
 }

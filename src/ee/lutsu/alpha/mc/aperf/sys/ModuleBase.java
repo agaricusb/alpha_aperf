@@ -33,4 +33,6 @@ public abstract class ModuleBase
 	}
 	
 	public List<BaseCommand> getCommands() { return commands; }
+	public boolean getDefaultEnabled() { return false; }
+	public void loadConfig() { }
 }

@@ -2,17 +2,21 @@ package ee.lutsu.alpha.mc.aperf.sys.entity;
 
 import java.util.ArrayList;
 
-import com.google.common.base.Optional;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+
+import com.google.common.base.Optional;
+
 import ee.lutsu.alpha.mc.aperf.sys.ModuleBase;
+import ee.lutsu.alpha.mc.aperf.sys.objects.Filter;
+import ee.lutsu.alpha.mc.aperf.sys.objects.FilterCollection;
 
 public class EntityModule extends ModuleBase
 {
 	public static EntityModule instance = new EntityModule();
+	public FilterCollection safeList;
 	
 	public EntityModule()
 	{
@@ -21,31 +25,31 @@ public class EntityModule extends ModuleBase
 		
 		visible = false;
 	}
-
-	public int removeEntities(Optional<Integer> dim, Optional<String> groupFilter, Optional<String> classFilter, Optional<String> longClassFilter, Optional<String> nameFilter, Entity centered, int range)
+	
+	public int removeEntities(Filter filter, Entity centered, int range)
 	{
 		int removed = 0;
 		int distSq = range * range;
 		for (World w : MinecraftServer.getServer().worldServers)
 		{
-			if (dim.isPresent() && w.provider.dimensionId != dim.get())
-				continue;
-			
 			ArrayList<Entity> toRemove = new ArrayList<Entity>();
-			for (Object o : w.loadedEntityList)
+			for (int i = 0; i < w.loadedEntityList.size(); i++)
 			{
-				Entity ent = (Entity)o;
+				Entity ent = (Entity)w.loadedEntityList.get(i);
+				
 				if (ent instanceof EntityPlayer)
+					continue;
+				
+				if (EntitySafeListModule.isEntitySafe(ent))
 					continue;
 				
 				if (centered != null && range >= 0 && ent.getDistanceSqToEntity(centered) < distSq)
 					continue;
 
-				if ((!groupFilter.isPresent() || groupFilter.get().equalsIgnoreCase(EntityHelper.getEntityType(ent))) &&
-					(!classFilter.isPresent() || classFilter.get().equalsIgnoreCase(ent.getClass().getSimpleName())) &&
-					(!longClassFilter.isPresent() || longClassFilter.get().equalsIgnoreCase(ent.getClass().getName())) &&
-					(!nameFilter.isPresent() || nameFilter.get().equalsIgnoreCase(EntityHelper.getEntityName(ent))))
-					toRemove.add(ent);
+				if (!filter.hitsAll(ent))
+					continue;
+				
+				toRemove.add(ent);
 			}
 			
 			for (Entity e : toRemove)

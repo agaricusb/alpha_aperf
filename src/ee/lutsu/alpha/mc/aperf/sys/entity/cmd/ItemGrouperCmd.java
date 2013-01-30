@@ -11,10 +11,7 @@ import ee.lutsu.alpha.mc.aperf.commands.Command;
 import ee.lutsu.alpha.mc.aperf.commands.CommandException;
 import ee.lutsu.alpha.mc.aperf.sys.entity.ItemGrouperModule;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitFilterType;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitRange;
-import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterLimit.LimitType;
+import ee.lutsu.alpha.mc.aperf.sys.objects.SpawnLimit;
 
 public class ItemGrouperCmd extends BaseCommand
 {
