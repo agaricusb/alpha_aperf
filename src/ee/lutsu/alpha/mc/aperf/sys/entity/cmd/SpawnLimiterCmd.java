@@ -11,6 +11,7 @@ import ee.lutsu.alpha.mc.aperf.commands.BaseCommand;
 import ee.lutsu.alpha.mc.aperf.commands.Command;
 import ee.lutsu.alpha.mc.aperf.commands.CommandException;
 import ee.lutsu.alpha.mc.aperf.sys.entity.SpawnLimiterModule;
+import ee.lutsu.alpha.mc.aperf.sys.objects.Filter;
 import ee.lutsu.alpha.mc.aperf.sys.objects.SpawnLimit;
 
 public class SpawnLimiterCmd extends BaseCommand
@@ -25,8 +26,20 @@ public class SpawnLimiterCmd extends BaseCommand
 	{
 		String format = "%s%s | %s%-6s%s | %-8s | %-20s | %s";
 		
+		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
 		if (!SpawnLimiterModule.instance.isEnabled())
 			msg(sender, "%s%s is currently disabled. Use /ap m for more info", ChatColor.LIGHT_PURPLE, SpawnLimiterModule.instance.getName());
+		
+		msg(sender, "%sExecute onChunkLoad: %s%s%s, normalSpawn: %s%s%s, otherSpawn: %s%s%s", ChatColor.GREEN,
+				SpawnLimiterModule.instance.executeRulesOnChunkLoad ? ChatColor.DARK_GREEN : ChatColor.RED,
+				SpawnLimiterModule.instance.executeRulesOnChunkLoad ? "on" : "off", ChatColor.GREEN,
+						
+				SpawnLimiterModule.instance.executeRulesOnNormalSpawning ? ChatColor.DARK_GREEN : ChatColor.RED,
+				SpawnLimiterModule.instance.executeRulesOnNormalSpawning ? "on" : "off", ChatColor.GREEN,
+										
+				SpawnLimiterModule.instance.exetuteRulesOnOtherwiseSpawned ? ChatColor.DARK_GREEN : ChatColor.RED,
+				SpawnLimiterModule.instance.exetuteRulesOnOtherwiseSpawned ? "on" : "off", ChatColor.GREEN
+				);
 		
 		msg(sender, format, ChatColor.DARK_GREEN, "#", "", "Active", "", "Type", "Filter", "Options");
 		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
@@ -127,6 +140,42 @@ public class SpawnLimiterCmd extends BaseCommand
 		list(plugin, sender, null);
 	}
 	
+	@Command(
+		name = "aperf",
+		syntax = "(?:entity|e) (?:spawn|s) (?:togglegeneral|tg) <key>",
+		description = "Toggle 'chunkload', 'normal' or 'other' ruleset on/off",
+		permission = "aperf.cmd.entity.spawn.togglegeneral"
+	)
+	public void toggleGeneral(Object plugin, ICommandSender sender, Map<String, String> args) 
+	{
+		String key = args.get("key");
+		boolean done = false;
+		
+		if (key.equalsIgnoreCase("chunkload"))
+		{
+			SpawnLimiterModule.instance.executeRulesOnChunkLoad = !SpawnLimiterModule.instance.executeRulesOnChunkLoad;
+			done = true;
+		}
+		else if (key.equalsIgnoreCase("normal"))
+		{
+			SpawnLimiterModule.instance.executeRulesOnNormalSpawning = !SpawnLimiterModule.instance.executeRulesOnNormalSpawning;
+			done = true;
+		}
+		else if (key.equalsIgnoreCase("other"))
+		{
+			SpawnLimiterModule.instance.exetuteRulesOnOtherwiseSpawned = !SpawnLimiterModule.instance.exetuteRulesOnOtherwiseSpawned;
+			done = true;
+		}
+		
+		if (!done)
+			msg(sender, "%sConfig not found. Use: 'chunkload', 'normal' or 'other'", ChatColor.YELLOW);
+		else
+		{
+			msg(sender, "%sConfig toggled and saved", ChatColor.GREEN);
+			SpawnLimiterModule.instance.saveConfig();
+			list(plugin, sender, null);
+		}
+	}
 	
 	@Command(
 		name = "aperf",
@@ -180,5 +229,33 @@ public class SpawnLimiterCmd extends BaseCommand
 			}
 		}
 		msg(sender, "%s-----------------------------------------------------", ChatColor.GRAY);
+	}
+	
+	@Command(
+		name = "aperf",
+		syntax = "(?:entity|e) (?:spawn|s) debug [filter]",
+		description = "Sends you info about the specific filtered entity spawning or despawning.\nLeave filter empty to cancel logging.",
+		permission = "aperf.cmd.entity.spawn.debug"
+	)
+	public void debug(Object plugin, ICommandSender sender, Map<String, String> args) throws Exception 
+	{
+		String filter = args.get("filter");
+		
+		if (filter == null || filter.equals(""))
+		{
+			Filter f = SpawnLimiterModule.instance.eventLoggers.remove(sender);
+			
+			if (f == null)
+				msg(sender, "%sYou aren't logging debug messages.", ChatColor.GREEN);
+			else
+				msg(sender, "%sStopped.", ChatColor.GREEN);
+		}
+		else
+		{
+			Filter f = new Filter(args.get("filter"));
+	
+			SpawnLimiterModule.instance.eventLoggers.put(sender, f);
+			msg(sender, "%sDebug logging started. Enter '/ap e s debug' to stop.", ChatColor.GREEN);
+		}
 	}
 }

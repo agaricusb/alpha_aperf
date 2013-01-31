@@ -37,7 +37,7 @@ import net.minecraftforge.common.Property;
 @Mod(
         modid = "aPerf",
         name = "aPerf",
-        version = "1.4.7.1"
+        version = "1.4.7.2"
 )
 @NetworkMod(
         clientSideRequired = false,
