@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class Log 
 {
 	private static final Pattern color_pattern = Pattern.compile("(?i)§([0-9A-FK-OR])");
-	public static Logger mclog = Logger.getLogger("aPerf");
+	public static Logger mclog = Logger.getLogger("Minecraft");
 	public static boolean isUnix = isUnix();
 
 	public static void info(String msg)
