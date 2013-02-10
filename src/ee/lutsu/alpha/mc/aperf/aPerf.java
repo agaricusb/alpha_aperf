@@ -72,12 +72,13 @@ public class aPerf
     @Mod.Init
     public void load(FMLInitializationEvent var1)
     {
-    	reload();
     }
 
     @Mod.ServerStarted
     public void modsLoaded(FMLServerStartedEvent var1)
     {
+    	reload();
+    	
     	for (ModuleBase m : modules)
     	{
     		for(BaseCommand cmd : m.getCommands())

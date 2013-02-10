@@ -43,7 +43,7 @@ public class EntityModule extends ModuleBase
 				if (EntitySafeListModule.isEntitySafe(ent))
 					continue;
 				
-				if (centered != null && range >= 0 && ent.getDistanceSqToEntity(centered) < distSq)
+				if (centered != null && range >= 0 && ent.getDistanceSqToEntity(centered) > distSq)
 					continue;
 
 				if (!filter.hitsAll(ent))
