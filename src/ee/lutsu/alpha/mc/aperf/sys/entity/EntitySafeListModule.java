@@ -33,22 +33,22 @@ public class EntitySafeListModule extends ModuleBase
 	@Override
 	public void loadConfig()
 	{
-		Map<String, Property> props = aPerf.instance.config.categories.get("Entity-SafeList");
-		if (props == null)
+		if (!aPerf.instance.config.hasCategory("Entity-SafeList"))
 		{
 			populateDefault();
 			saveConfig();
 		}
 		else
 		{
-			if (props.size() < 1)
+			ConfigCategory props = aPerf.instance.config.getCategory("Entity-SafeList");
+			if (props.values().size() < 1)
 				return;
 			
 			try
 			{
 				safeList.clear();
 				for (Property prop : props.values())
-					safeList.add(new Filter(prop.value));
+					safeList.add(new Filter(prop.getString()));
 			}
 			catch (Exception e)
 			{
@@ -59,10 +59,7 @@ public class EntitySafeListModule extends ModuleBase
 	
 	public void saveConfig()
 	{
-		ConfigCategory props = aPerf.instance.config.categories.get("Entity-SafeList");
-		if (props == null)
-			aPerf.instance.config.categories.put("Entity-SafeList", props = new ConfigCategory("Entity-SafeList"));
-
+		ConfigCategory props = aPerf.instance.config.getCategory("Entity-SafeList");
 		props.clear();
 		
 		int i = 1;
@@ -71,7 +68,7 @@ public class EntitySafeListModule extends ModuleBase
 			String name = String.format("Filter-%d", i++);
 			Property prop = new Property();
 			
-			prop.value = filter.serialize();
+			prop.set(filter.serialize());
 			prop.setName(name);
 			
 			props.put(name, prop);

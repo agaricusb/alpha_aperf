@@ -627,7 +627,7 @@ public class PacketManagerModule extends ModuleBase implements IPacketHandler
     		HashMap<String, byte[]> limits = new HashMap<String, byte[]>();
     		for (Property l : cat.values())
     		{
-    			String[] vals = l.value.split(",");
+    			String[] vals = l.getString().split(",");
     			byte[] d = new byte[subTypesCustom];
     			for(String val : vals)
     			{
@@ -645,7 +645,7 @@ public class PacketManagerModule extends ModuleBase implements IPacketHandler
     	cat = aPerf.instance.config.getCategory("Packet-Limiter.PersonalLimits");
     	for (Property p : cat.values())
     	{
-    		values.add(p.value);
+    		values.add(p.getString());
     	}
 
     	String[] cnf = values.toArray(new String[values.size()]);
@@ -665,7 +665,7 @@ public class PacketManagerModule extends ModuleBase implements IPacketHandler
     	ConfigCategory cat = aPerf.instance.config.getCategory("Packet-Limiter.PersonalLimits");
     	for (Property p : cat.values())
     	{
-    		values.add(p.value);
+    		values.add(p.getString());
     	}
 
     	String[] cnf = values.toArray(new String[values.size()]);

@@ -23,9 +23,9 @@ public class TileEntityHelper
 	
 	public static String getEntityName(TileEntity e)
 	{
-		String n = e.getBlockType().translateBlockName();
+		String n = e.getBlockType().getLocalizedName();
 		if (n.startsWith("tile.") && n.endsWith(".name")) // no translation
-			return e.getBlockType().getBlockName().substring("tile.".length());
+			return e.getBlockType().getUnlocalizedName().substring("tile.".length());
 		else
 			return n;
 	}

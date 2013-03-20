@@ -69,26 +69,26 @@ public class ItemGrouperModule extends ModuleBase
 	@Override
 	public void loadConfig()
 	{
-		groupItems = Boolean.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "GroupItems", Boolean.toString(groupItems)).value);
-		groupExpOrbs = Boolean.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "GroupExpOrbs", Boolean.toString(groupExpOrbs)).value);
+		groupItems = aPerf.instance.config.get("Entity-ItemGrouper", "GroupItems", groupItems).getBoolean(groupItems);
+		groupExpOrbs = aPerf.instance.config.get("Entity-ItemGrouper", "GroupExpOrbs", groupExpOrbs).getBoolean(groupExpOrbs);
 		
-		matchRange = Double.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "MatchRange", Double.toString(matchRange)).value);
-		moveToNewLocation = Boolean.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "MoveToNewLocation", Boolean.toString(moveToNewLocation)).value);
+		matchRange = aPerf.instance.config.get("Entity-ItemGrouper", "MatchRange", matchRange).getDouble(matchRange);
+		moveToNewLocation = aPerf.instance.config.get("Entity-ItemGrouper", "MoveToNewLocation", moveToNewLocation).getBoolean(moveToNewLocation);
 
-		livedAtleast = Integer.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "LivedAtleast", Integer.toString(livedAtleast)).value);
-		skipForTicks = Integer.valueOf(aPerf.instance.config.get("Entity-ItemGrouper", "SkipForTicks", Integer.toString(skipForTicks)).value);
+		livedAtleast = aPerf.instance.config.get("Entity-ItemGrouper", "LivedAtleast", livedAtleast).getInt(livedAtleast);
+		skipForTicks = aPerf.instance.config.get("Entity-ItemGrouper", "SkipForTicks", skipForTicks).getInt(skipForTicks);
 	}
 	
 	public void saveConfig()
 	{
-		aPerf.instance.config.get("Entity-ItemGrouper", "GroupItems", Boolean.toString(groupItems)).value = Boolean.toString(groupItems);
-		aPerf.instance.config.get("Entity-ItemGrouper", "GroupExpOrbs", Boolean.toString(groupExpOrbs)).value = Boolean.toString(groupExpOrbs);
+		aPerf.instance.config.get("Entity-ItemGrouper", "GroupItems", groupItems).set(groupItems);
+		aPerf.instance.config.get("Entity-ItemGrouper", "GroupExpOrbs", groupExpOrbs).set(groupExpOrbs);
 		
-		aPerf.instance.config.get("Entity-ItemGrouper", "MatchRange", Double.toString(matchRange)).value = Double.toString(matchRange);
-		aPerf.instance.config.get("Entity-ItemGrouper", "MoveToNewLocation", Boolean.toString(moveToNewLocation)).value = Boolean.toString(moveToNewLocation);
+		aPerf.instance.config.get("Entity-ItemGrouper", "MatchRange", matchRange).set(matchRange);
+		aPerf.instance.config.get("Entity-ItemGrouper", "MoveToNewLocation", moveToNewLocation).set(moveToNewLocation);
 
-		aPerf.instance.config.get("Entity-ItemGrouper", "LivedAtleast", Integer.toString(livedAtleast)).value = Integer.toString(livedAtleast);
-		aPerf.instance.config.get("Entity-ItemGrouper", "SkipForTicks", Integer.toString(skipForTicks)).value = Integer.toString(skipForTicks);
+		aPerf.instance.config.get("Entity-ItemGrouper", "LivedAtleast", livedAtleast).set(livedAtleast);
+		aPerf.instance.config.get("Entity-ItemGrouper", "SkipForTicks", skipForTicks).set(skipForTicks);
 		
 		aPerf.instance.config.save();
 	}

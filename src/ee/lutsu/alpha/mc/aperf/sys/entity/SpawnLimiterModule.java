@@ -63,17 +63,17 @@ public class SpawnLimiterModule extends ModuleBase
 		executeRulesOnNormalSpawning = aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnNormalSpawning", true).getBoolean(true);
 		exetuteRulesOnOtherwiseSpawned = aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnOtherwiseSpawned", false).getBoolean(false);
 		
-		Map<String, Property> props = aPerf.instance.config.getCategory("Entity-SpawnLimiter.Limits");
-		if (props == null || props.size() < 1)
-			return;
-		
 		limits.clear();
 		
+		ConfigCategory props = aPerf.instance.config.getCategory("Entity-SpawnLimiter.Limits");
+		if (props.values().size() < 1)
+			return;
+
 		try
 		{
 			for (Property prop : props.values())
 			{
-				limits.add(SpawnLimit.deserialize(prop.value));
+				limits.add(SpawnLimit.deserialize(prop.getString()));
 			}
 		}
 		catch (Exception ex)
@@ -84,9 +84,9 @@ public class SpawnLimiterModule extends ModuleBase
 	
 	public void saveConfig()
 	{
-		aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnChunkLoad", executeRulesOnChunkLoad).value = String.valueOf(executeRulesOnChunkLoad);
-		aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnNormalSpawning", executeRulesOnNormalSpawning).value = String.valueOf(executeRulesOnNormalSpawning);
-		aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnOtherwiseSpawned", exetuteRulesOnOtherwiseSpawned).value = String.valueOf(exetuteRulesOnOtherwiseSpawned);
+		aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnChunkLoad", executeRulesOnChunkLoad).set(executeRulesOnChunkLoad);
+		aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnNormalSpawning", executeRulesOnNormalSpawning).set(executeRulesOnNormalSpawning);
+		aPerf.instance.config.get("Entity-SpawnLimiter", "ExecuteRulesOnOtherwiseSpawned", exetuteRulesOnOtherwiseSpawned).set(exetuteRulesOnOtherwiseSpawned);
 		
 		ConfigCategory props = aPerf.instance.config.getCategory("Entity-SpawnLimiter.Limits");
 
@@ -98,7 +98,7 @@ public class SpawnLimiterModule extends ModuleBase
 			String name = String.format("Limit-%d", i++);
 			Property prop = new Property();
 			
-			prop.value = limit.serialize();
+			prop.set(limit.serialize());
 			prop.setName(name);
 			
 			props.put(name, prop);

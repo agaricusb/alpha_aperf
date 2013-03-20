@@ -37,7 +37,7 @@ import net.minecraftforge.common.Property;
 @Mod(
         modid = "aPerf",
         name = "aPerf",
-        version = "1.4.7.2"
+        version = "1.5.0.0"
 )
 @NetworkMod(
         clientSideRequired = false,
@@ -113,14 +113,12 @@ public class aPerf
     
     public boolean isEnabled(ModuleBase module)
     {
-    	Property prop = config.get("Modules", "Enable-" + module.getClass().getSimpleName(), module.getDefaultEnabled());
-    	return prop.getBoolean(module.getDefaultEnabled());
+    	return config.get("Modules", "Enable-" + module.getClass().getSimpleName(), module.getDefaultEnabled()).getBoolean(module.getDefaultEnabled());
     }
     
     public void setAutoLoad(ModuleBase module, boolean load)
     {
-    	Property prop = config.get("Modules", "Enable-" + module.getClass().getSimpleName(), false);
-    	prop.value = String.valueOf(load);
+    	config.get("Modules", "Enable-" + module.getClass().getSimpleName(), false).set(load);
     	config.save();
     }
     
